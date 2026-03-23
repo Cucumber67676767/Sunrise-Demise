@@ -1,0 +1,30 @@
+name: build_game
+on: [push, pull_request]
+jobs:
+  build-game:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build with Pygbag
+        uses: pygame-web/pygbag@main
+        with:
+          path: main.py
+          template: no_idle
+      - name: Upload Build
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+  deploy:
+    needs: build-game
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
